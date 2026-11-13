@@ -1,0 +1,24 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { ui, formatDate } from "../lib/blog";
+
+const lang = "fr" as const;
+const t = ui[lang];
+const posts = (await getCollection("blog"))
+  .filter((p) => p.data.lang === lang)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<Base lang={lang}>
+  <h1>{t.blogName}</h1>
+  <p class="muted">{t.tagline}</p>
+  <h2>{t.latest}</h2>
+  {posts.map((p) => (
+    <a class="post-card" href={`/blog/${p.id.replace(/^.*\//, "").replace(/\.md$/, "")}`}>
+      <strong>{p.data.title}</strong>
+      <div class="muted">{formatDate(p.data.pubDate, lang)} · {p.data.description}</div>
+    </a>
+  ))}
+  {posts.length === 0 && <p class="muted">{t.noPosts}</p>}
+</Base>
